@@ -78,7 +78,7 @@ func main() {
 				return
 			}
 			if resp.StatusCode <= 300 || resp.StatusCode >= 500 {
-				fmt.Printf("%d\t%d\t%d\t%s\t%s\n", resp.StatusCode, resp.ContentLength, ws, resp.Header.Get("Content-Type"), u.String())
+				fmt.Printf("%d\t%d\t%d\t%s\t%s\n", resp.StatusCode, resp.ContentLength, ws, strings.ReplaceAll(resp.Header.Get("Content-Type"), " ", ""), u.String())
 			}
 		}(raw)
 		<-semaphore
