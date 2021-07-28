@@ -1,4 +1,4 @@
-package extendedantiburl
+package main
 
 import (
 	"bufio"
