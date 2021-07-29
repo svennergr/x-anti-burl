@@ -23,13 +23,17 @@ var (
 	requestMethod string
 	userAgent     string
 
-	concurrency = 50
-	maxSize     = int64(1024000)
+	concurrency   int
+	delay         int
+	maxSize       = int64(1024000)
+	sleepDuration time.Duration
 )
 
 func main() {
 	flag.StringVar(&requestMethod, "X", "HEAD", "The HTTP Request method. For the fastest, use HEAD.")
-	flag.StringVar(&userAgent, "-user-agent", "Mozilla", "The HTTP User Agent.")
+	flag.StringVar(&userAgent, "user-agent", "Mozilla", "The HTTP User Agent.")
+	flag.IntVar(&concurrency, "t", 50, "The number of threads to use.")
+	flag.IntVar(&delay, "delay", 0, "The number miliseconds to delay threads.")
 	flag.Parse()
 
 	var input io.Reader
@@ -69,19 +73,28 @@ func main() {
 		semaphore <- true
 		go func(raw string) {
 			defer wg.Done()
+
 			u, err := url.ParseRequestURI(raw)
 			if err != nil {
 				return
 			}
+
 			resp, ws, err := fetchURL(u)
 			if err != nil {
 				return
 			}
+
 			if resp.StatusCode <= 300 || resp.StatusCode >= 500 {
-				fmt.Printf("%d\t%d\t%d\t%s\t%s\n", resp.StatusCode, resp.ContentLength, ws, strings.ReplaceAll(resp.Header.Get("Content-Type"), " ", ""), u.String())
+				fmt.Printf("%d %d %d %s %s\n", resp.StatusCode, resp.ContentLength, ws, strings.ReplaceAll(resp.Header.Get("Content-Type"), " ", ""), u.String())
 			}
+
+			if delay > 0 {
+				sleepDuration = time.Duration(delay)
+				time.Sleep(sleepDuration * time.Millisecond)
+			}
+			<-semaphore
 		}(raw)
-		<-semaphore
+		// <-semaphore
 	}
 
 	wg.Wait()
