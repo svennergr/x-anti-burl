@@ -6,3 +6,5 @@ StatusCode  Content-Length  Word-Size   Content-Type    URL
 Flags:
 -X used for the HTTP Request Method
 --user-agent to use a different user-agent
+
+Credits go to @tomnomnom 's https://github.com/tomnomnom/hacks/tree/master/anti-burl
