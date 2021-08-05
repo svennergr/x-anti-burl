@@ -76,11 +76,13 @@ func main() {
 
 			u, err := url.ParseRequestURI(raw)
 			if err != nil {
+				<-semaphore
 				return
 			}
 
 			resp, ws, err := fetchURL(u)
 			if err != nil {
+				<-semaphore
 				return
 			}
 
